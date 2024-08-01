@@ -16,33 +16,29 @@ def create_numpy_array(nrow: int, ncol: int, cnames: list[str], start_id: int,
 # --- pandas interface for hdf5
 @qtimer
 def test_save_to_h5(df: pd.DataFrame, file_path: str, dset_name: str, data_columns: list[str] | bool = None):
-    store = pd.HDFStore(file_path, mode="w")
-    store.put(key=dset_name, value=df, format="table", data_columns=data_columns)
-    store.close()
+    with pd.HDFStore(file_path, mode="w") as store:
+        store.put(key=dset_name, value=df, format="table", data_columns=data_columns)
     return 0
 
 
 @qtimer
 def test_append_to_h5(df: pd.DataFrame, file_path: str, dset_name: str, data_columns: list[str] | bool = None):
-    store = pd.HDFStore(file_path, mode="a")
-    store.append(key=dset_name, value=df, format="table", data_columns=data_columns)
-    store.close()
+    with pd.HDFStore(file_path, mode="a") as store:
+        store.append(key=dset_name, value=df, format="table", data_columns=data_columns)
     return 0
 
 
 @qtimer
 def test_view_h5(file_path: str, dset_name: str) -> pd.DataFrame:
-    store = pd.HDFStore(file_path, mode="r")
-    df: pd.DataFrame = store.get(key=dset_name)  # type:ignore
-    store.close()
+    with pd.HDFStore(file_path, mode="r") as store:
+        df: pd.DataFrame = store.get(key=dset_name)  # type:ignore
     return df
 
 
 @qtimer
 def test_select_from_h5(file_path: str, dset_name: str, conds: list | None = None) -> pd.DataFrame:
-    store = pd.HDFStore(file_path, mode="r")
-    df: pd.DataFrame = store.select(key=dset_name, where=conds)  # type:ignore
-    store.close()
+    with pd.HDFStore(file_path, mode="r") as store:
+        df: pd.DataFrame = store.select(key=dset_name, where=conds)  # type:ignore
     return df
 
 

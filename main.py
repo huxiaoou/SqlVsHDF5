@@ -7,12 +7,16 @@ conclusion:
 2.  nrow <   100_000, h5 < sql
 """
 if __name__ == "__main__":
+    from loguru import logger
     from husfort.qsqlite import CTable
+    from husfort.qlog import define_logger
     from test_funs_and_modules import create_numpy_array
     from test_funs_and_modules import test_save_to_h5, test_save_to_sql
     from test_funs_and_modules import test_view_h5, test_view_sql
     from test_funs_and_modules import test_select_from_h5, test_select_from_sql
     from test_funs_and_modules import test_append_to_h5
+
+    define_logger()
 
     nrow, ncol = 100_000, 10
     cnames = [f"C{_:02d}" for _ in range(ncol)]
@@ -25,7 +29,7 @@ if __name__ == "__main__":
     threshold_date = f"T{int(0.5 * nrow * 2):08d}"
     data_columns = ["T", "C00", "C01"]
 
-    print("[INF] --- test 1: save ---")
+    logger.info("--- test 1: save ---")
     test_save_to_h5(df=df1, file_path=h5_file, dset_name=dset_name, data_columns=data_columns)
     table = CTable(
         table_struct={
@@ -36,19 +40,19 @@ if __name__ == "__main__":
     )
     test_save_to_sql(df=df1, file_path=sql_file, table=table, remove_existence=True)
 
-    print("[INF] --- test 2: append ---")
+    logger.info("--- test 2: append ---")
     test_append_to_h5(df=df2, file_path=h5_file, dset_name=dset_name, data_columns=data_columns)
     test_save_to_sql(df=df2, file_path=sql_file, table=table, remove_existence=False)
 
-    print("[INF] --- test 3: view ---")
+    logger.info("--- test 3: view ---")
     df3 = test_view_h5(file_path=h5_file, dset_name=dset_name)
     df4 = test_view_sql(file_path=sql_file, dset_name=dset_name, values=["T"] + cnames)
-    print(f"[INF] df_h5  shape={df3.shape}")
-    print(f"[INF] df_sql shape={df4.shape}")
+    logger.info(f"df_h5  shape={df3.shape}")
+    logger.info(f"df_sql shape={df4.shape}")
     print(df3.head(5))
     print(df4.head(5))
 
-    print("[INF] --- test 4: select ---")
+    logger.info("--- test 4: select ---")
     slc_data1 = test_select_from_h5(
         file_path=h5_file, dset_name=dset_name,
         conds=[
@@ -64,7 +68,7 @@ if __name__ == "__main__":
             ("C01", "<", 0),
             ("T", ">", threshold_date),
         ])
-    print(f"[INF] selected h5  shape={slc_data1.shape}")
-    print(f"[INF] selected sql shape={slc_data2.shape}")
+    logger.info(f"selected h5  shape={slc_data1.shape}")
+    logger.info(f"selected sql shape={slc_data2.shape}")
     print(slc_data1)
     print(slc_data2)
